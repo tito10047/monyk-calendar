@@ -8,9 +8,9 @@
 
 namespace Tito10047\Calendar\Interface;
 
-use Tito10047\Calendar\Enum\Day;
+use Tito10047\Calendar\Enum\DayName;
 
 interface DayNameRendererInterface
 {
-    public function renderDayName(Day $day): string;
+    public function renderDayName(DayName $day): string;
 }

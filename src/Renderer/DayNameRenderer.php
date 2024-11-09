@@ -10,7 +10,7 @@ namespace Tito10047\Calendar\Renderer;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tito10047\Calendar\Calendar;
-use Tito10047\Calendar\Enum\Day;
+use Tito10047\Calendar\Enum\DayName;
 
 class DayNameRenderer implements \Tito10047\Calendar\Interface\DayNameRendererInterface
 {
@@ -24,7 +24,7 @@ class DayNameRenderer implements \Tito10047\Calendar\Interface\DayNameRendererIn
     }
 
 
-    public function renderDayName(Day $day): string
+    public function renderDayName(DayName $day): string
     {
         $name = $day->getShortName();
         $name = $this->translator->trans($name, [], $this->translationDomain);

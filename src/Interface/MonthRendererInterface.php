@@ -8,14 +8,14 @@
 
 namespace Tito10047\Calendar\Interface;
 
-use Tito10047\Calendar\Enum\Day;
+use Tito10047\Calendar\Enum\DayName;
 
 interface MonthRendererInterface
 {
     /**
-     * @param DateTimeImmutable $month
-     * @param Day[] $headers
-     * @param \DateTimeImmutable[][] ...$dayRows
+     * @param \DateTimeImmutable $month
+     * @param DayName[] $headers
+     * @param \Tito10047\Calendar\Day[][] ...$dayRows
      * @return string
      */
     public function renderMonth(\DateTimeImmutable $month, array $headers, array $dayRows): string;

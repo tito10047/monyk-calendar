@@ -20,12 +20,23 @@ class WeekRowRenderer implements \Tito10047\Calendar\Interface\WeekRowRendererIn
     }
 
 
-    public function renderWeekRow(int $month, \DateTimeImmutable ...$days): string
+    public function renderWeekRow(int $month, \Tito10047\Calendar\Day ...$days): string
     {
         $html = "<tr>";
         foreach($days as $day){
-            $html .= "<td>";
-            $html .= $this->dayRenderer->renderDay($day,[]);
+            $classes = [];
+            if ($day->ghost){
+                $classes[] = "ghost";
+            }
+            if ($day->today){
+                $classes[] = "today";
+            }
+            if (!$day->enabled){
+                $classes[] = "disabled";
+            }
+            $classes = implode(" ",$classes);
+            $html .= "<td class='{$classes}'>";
+            $html .= $this->dayRenderer->renderDay($day->date,[]);
             $html .= "</td>";
         }
         $html .= "</tr>";

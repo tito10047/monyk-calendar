@@ -36,7 +36,7 @@ enum CalendarType
         };
     }
 
-    public function getDays(\DateTimeImmutable $day, Day $firstDay):array
+    public function getDays(\DateTimeImmutable $day, DayName $firstDay):array
     {
         $firstDayDate = $day->modify(match ($this) {
             self::Monthly => 'first day of this month',
@@ -51,7 +51,7 @@ enum CalendarType
         $firstDayDate = $firstDayDate->modify("monday this week");
         $lastDayDate = $lastDayDate->modify("sunday this week");
         if ($this!==CalendarType::Monthly){
-            if ($firstDay==Day::Sunday) {
+            if ($firstDay==DayName::Sunday) {
                 $firstDayDate = $firstDayDate->modify("-7 day");
                 $lastDayDate = $lastDayDate->modify("-7 day");
             }

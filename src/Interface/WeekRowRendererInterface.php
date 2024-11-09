@@ -8,9 +8,9 @@
 
 namespace Tito10047\Calendar\Interface;
 
-use Tito10047\Calendar\Enum\Day;
+use Tito10047\Calendar\Enum\DayName;
 
 interface WeekRowRendererInterface
 {
-    public function renderWeekRow(int $month, \DateTimeImmutable ...$days): string;
+    public function renderWeekRow(int $month, \Tito10047\Calendar\Day ...$days): string;
 }
