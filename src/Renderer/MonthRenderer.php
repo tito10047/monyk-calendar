@@ -9,6 +9,7 @@
 namespace Tito10047\Calendar\Renderer;
 
 
+use Tito10047\Calendar\Interface\DateTimeImmutable;
 use Tito10047\Calendar\Interface\DayNameRendererInterface;
 use Tito10047\Calendar\Interface\WeekRowRendererInterface;
 
@@ -24,7 +25,7 @@ class MonthRenderer implements \Tito10047\Calendar\Interface\MonthRendererInterf
     }
 
 
-    public function renderMonth(int $month, array $headers, array $dayRows): string
+    public function renderMonth(\DateTimeImmutable $month, array $headers, array $dayRows): string
     {
         $html = "<table class='calendar'>";
         $html .= "<thead><tr>";
@@ -36,7 +37,7 @@ class MonthRenderer implements \Tito10047\Calendar\Interface\MonthRendererInterf
         $html .= "<tbody>";
         foreach($dayRows as $row) {
             $html .= "<tr class='week'>";
-            $html .= $this->weekRowRenderer->renderWeekRow($month,...$row);
+            $html .= $this->weekRowRenderer->renderWeekRow((int)$month->format("n"),...$row);
             $html .= "</tr>";
         }
         $html .= "</tbody>";

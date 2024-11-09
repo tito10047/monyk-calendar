@@ -148,7 +148,7 @@ class Calendar
     public function render():string
     {
         $daysTable = $this->getDaysTable();
-        return $this->monthRenderer->renderMonth($this->date->format('n'), $this->enabledDays, $daysTable);
+        return $this->monthRenderer->renderMonth($this->date, $this->enabledDays, $daysTable);
     }
 
 

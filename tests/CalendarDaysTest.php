@@ -21,6 +21,13 @@ class CalendarDaysTest extends TestCase
             new \DateTimeImmutable('2024-11-04'),
             CalendarType::WorkWeek,
             Day::Monday,
+            [
+                Day::Monday,
+                Day::Tuesday,
+                Day::Wednesday,
+                Day::Thursday,
+                Day::Friday,
+            ]
         );
         $dayTable = $calendar->getDaysTable();
         $this->assertCount(1, $dayTable);
@@ -32,7 +39,6 @@ class CalendarDaysTest extends TestCase
             '2024-11-07',
             '2024-11-08',
         ];
-        var_dump($days);
         foreach ($days as $key => $day) {
             $this->assertEquals($dates[$key], $day->format('Y-m-d'));
         }
@@ -43,6 +49,13 @@ class CalendarDaysTest extends TestCase
             new \DateTimeImmutable('2024-11-01'),
             CalendarType::WorkWeek,
             Day::Monday,
+            [
+                Day::Monday,
+                Day::Tuesday,
+                Day::Wednesday,
+                Day::Thursday,
+                Day::Friday,
+            ]
         );
         $daysTable = $calendar->getDaysTable();
         $this->assertCount(1, $daysTable);
@@ -73,7 +86,9 @@ class CalendarDaysTest extends TestCase
         $this->assertCount(5, $daysTable);
         $days = array_merge(...$daysTable);
         $firstDay = $firstDay->modify('first day of this month');
+        $firstDay = $firstDay->modify("monday this week");
         $lastDay = $firstDay->modify('last day of this month');
+        $lastDay = $lastDay->modify("sunday this week");
         $currentDay = $firstDay;
         foreach ($days as $day) {
             $this->assertEquals($currentDay->format('Y-m-d'), $day->format('Y-m-d'));

@@ -48,6 +48,8 @@ enum CalendarType
             self::Weekly => 'sunday this week',
             self::WorkWeek => 'friday this week',
         });
+        $firstDayDate = $firstDayDate->modify("monday this week");
+        $lastDayDate = $lastDayDate->modify("sunday this week");
         if ($this!==CalendarType::Monthly){
             if ($firstDay==Day::Sunday) {
                 $firstDayDate = $firstDayDate->modify("-7 day");

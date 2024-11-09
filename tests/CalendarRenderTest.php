@@ -20,8 +20,7 @@ class CalendarRenderTest extends TestCase
         );
         $html = $calendar->render();
         $this->assertNotEmpty($html);
-        $countDaysInMonth = (int)$calendar->getDate()->format('t');
         $this->assertSame(6,substr_count($html, '<tr>'));
-        $this->assertSame($countDaysInMonth,substr_count($html, '<td>'));
+        $this->assertSame(35,substr_count($html, '<td>'));
     }
 }

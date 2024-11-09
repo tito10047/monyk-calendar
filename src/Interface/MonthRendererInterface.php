@@ -13,10 +13,10 @@ use Tito10047\Calendar\Enum\Day;
 interface MonthRendererInterface
 {
     /**
-     * @param int $month
+     * @param DateTimeImmutable $month
      * @param Day[] $headers
      * @param \DateTimeImmutable[][] ...$dayRows
      * @return string
      */
-    public function renderMonth(int $month, array $headers, array $dayRows): string;
+    public function renderMonth(\DateTimeImmutable $month, array $headers, array $dayRows): string;
 }

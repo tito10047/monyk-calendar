@@ -24,9 +24,9 @@ class DayNameRenderer implements \Tito10047\Calendar\Interface\DayNameRendererIn
     }
 
 
-    public function renderDayName(Day $date): string
+    public function renderDayName(Day $day): string
     {
-        $name = $date->getShortName();
+        $name = $day->getShortName();
         $name = $this->translator->trans($name, [], $this->translationDomain);
         $classes = join(" ",$this->dayNameClasses);
         return <<<HTML

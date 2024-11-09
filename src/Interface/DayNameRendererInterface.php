@@ -12,5 +12,5 @@ use Tito10047\Calendar\Enum\Day;
 
 interface DayNameRendererInterface
 {
-    public function renderDayName(Day $date): string;
+    public function renderDayName(Day $day): string;
 }
