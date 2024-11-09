@@ -1,0 +1,37 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jozef Môstka
+ * Date: 9. 11. 2024
+ * Time: 16:19
+ */
+
+namespace Tito10047\Calendar\Renderer;
+
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Tito10047\Calendar\Calendar;
+use Tito10047\Calendar\Enum\Day;
+
+class DayNameRenderer implements \Tito10047\Calendar\Interface\DayNameRendererInterface
+{
+
+    public function __construct(
+        private TranslatorInterface $translator,
+        private string $translationDomain,
+        private array $dayNameClasses = []
+    )
+    {
+    }
+
+
+    public function renderDayName(Day $date): string
+    {
+        $name = $date->getShortName();
+        $name = $this->translator->trans($name, [], $this->translationDomain);
+        $classes = join(" ",$this->dayNameClasses);
+        return <<<HTML
+<span class="{$classes}">{$name}</span>
+HTML;
+
+    }
+}
