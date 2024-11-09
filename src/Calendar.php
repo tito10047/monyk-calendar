@@ -198,8 +198,9 @@ class Calendar
     {
         $days = $this->type->getDays($this->date, $this->startDay);
         $rows = [];
-        while ($day = count($days) > 0) {
+        while (count($days) > 0) {
             $row = [];
+            $weekNum = (int)$days[0]->format('W');
             for ($i = 0; $i < 7 and count($days) > 0; $i++) {
                 $day = array_shift($days);
                 $row[] = new \Tito10047\Calendar\Day(
@@ -209,7 +210,7 @@ class Calendar
                     enabled: !in_array($day, $this->disabledDays)
                 );
             }
-            $rows[] = $row;
+            $rows[$weekNum] = $row;
         }
         return $rows;
     }
