@@ -24,7 +24,7 @@ class CalendarDaysTest extends TestCase
             DayName::Monday,
         );
         $calendar = $calendar
-            ->disableDayName(DayName::Saturday,DayName::Sunday);
+            ->disableDaysByName(DayName::Saturday,DayName::Sunday);
         $dayTable = $calendar->getDaysTable();
         $this->assertCount(1, $dayTable);
         $days = array_shift($dayTable);
@@ -48,7 +48,7 @@ class CalendarDaysTest extends TestCase
             CalendarType::WorkWeek,
             DayName::Monday,
         );
-        $calendar = $calendar->disableDayName(DayName::Saturday,DayName::Sunday);
+        $calendar = $calendar->disableDaysByName(DayName::Saturday,DayName::Sunday);
         $daysTable = $calendar->getDaysTable();
         $this->assertCount(1, $daysTable);
         $days = array_shift($daysTable);

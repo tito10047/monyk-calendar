@@ -23,7 +23,7 @@ interface CalendarInterface
 
     public function disableDays(DateTimeImmutable ...$days): self;
 
-    public function disableDayName(DayName ...$daysToDisable): self;
+    public function disableDaysByName(DayName ...$daysToDisable): self;
 
     public function disableWeek(int $weekNum): self;
 

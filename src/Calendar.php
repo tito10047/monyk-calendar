@@ -64,7 +64,7 @@ final readonly class Calendar implements CalendarInterface
         );
     }
 
-    public function disableDayName(DayName ...$daysToDisable): static
+    public function disableDaysByName(DayName ...$daysToDisable): static
     {
         $days = $this->days;
         $disabled = [];
