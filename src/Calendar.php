@@ -8,74 +8,41 @@
 
 namespace Tito10047\Calendar;
 
-use Symfony\Contracts\Translation\TranslatorInterface;
+use DateTimeImmutable;
 use Tito10047\Calendar\Enum\CalendarType;
 use Tito10047\Calendar\Enum\DayName;
-use Tito10047\Calendar\Interface\DayNameRendererInterface;
-use Tito10047\Calendar\Interface\DayRendererInterface;
-use Tito10047\Calendar\Interface\EventRendererInterface;
-use Tito10047\Calendar\Interface\MonthRendererInterface;
-use Tito10047\Calendar\Interface\WeekRowRendererInterface;
+use Tito10047\Calendar\Interface\CalendarInterface;
+use Tito10047\Calendar\Interface\DaysGeneratorInterface;
 
-class Calendar
+final readonly class Calendar implements CalendarInterface
 {
-    public TranslatorInterface $translator;
-    public string $translationDomain = 'calendar';
-    private DayNameRendererInterface $dayNameRenderer;
-    private WeekRowRendererInterface $weekRowRenderer;
-    private DayRendererInterface $dayRenderer;
-    private MonthRendererInterface $monthRenderer;
-    private EventRendererInterface $eventRenderer;
+    /** @var DateTimeImmutable[] */
+    private array $days;
 
 
     public function __construct(
-        private \DateTimeImmutable $date,
-        private CalendarType $type = CalendarType::Monthly,
+        private DateTimeImmutable $date,
+        private DaysGeneratorInterface $type = CalendarType::Monthly,
         private DayName $startDay = DayName::Monday,
-        /** @var \DateTimeImmutable[] $disabledDays */
+        /** @var DateTimeImmutable[] $disabledDays */
         private array $disabledDays = []
     ) {
-        $this->translator = new Translator();
-        $this->eventRenderer = new \Tito10047\Calendar\Renderer\EventRenderer(
-            $this->translator,
-            $this->translationDomain
-        );
-        $this->dayNameRenderer = new \Tito10047\Calendar\Renderer\DayNameRenderer(
-            $this->translator,
-            $this->translationDomain
-        );
-        $this->dayRenderer = new \Tito10047\Calendar\Renderer\DayRenderer(
-            $this->eventRenderer,
-            $this->type, $this->translator, $this->translationDomain
-        );
-        $this->weekRowRenderer = new \Tito10047\Calendar\Renderer\WeekRowRenderer(
-            $this->dayRenderer
-        );
-        $this->monthRenderer = new \Tito10047\Calendar\Renderer\MonthRenderer(
-            $this->dayNameRenderer,
-            $this->weekRowRenderer
-        );
+        $this->days = $this->type->getDays($this->date, $this->startDay);
     }
 
-    public function getDate(): \DateTimeImmutable
+    public function getDate(): DateTimeImmutable
     {
         return $this->date;
     }
 
-    public function setTranslator(TranslatorInterface $translator, string $translationDomain = "calendar"): self
-    {
-        $this->translator = $translator;
-        $this->translationDomain = $translationDomain;
-        return $this;
-    }
 
-    public function disableDaysRange(\DateTimeImmutable $from = null, \DateTimeImmutable $to = null): self
+    public function disableDaysRange(DateTimeImmutable $from = null, DateTimeImmutable $to = null): self
     {
         if (!$from) {
-            $from = $this->date->modify('first day of this month')->modify('monday this week');
+            $from = $this->type->getStartDate($this->date, $this->startDay);
         }
         if (!$to) {
-            $to = $this->date->modify('last day of this month')->modify('sunday this week');
+            $to = $this->type->getEndDate($this->date, $this->startDay);
         }
         $current = clone $from;
         $days = [];
@@ -83,127 +50,82 @@ class Calendar
             $days[] = $current;
             $current = $current->modify('+1 day');
         }
-        $calendar = clone $this;
-        $calendar->disabledDays = array_unique(array_merge($calendar->disabledDays, $days), SORT_REGULAR);
-        return $calendar;
+        return $this->disableDays(...$days);
     }
 
-    public function disableDays(\DateTimeImmutable ...$days): self
+
+    public function disableDays(DateTimeImmutable ...$days): self
     {
-        $calendar = clone $this;
-        $calendar->disabledDays = array_unique(array_merge($calendar->disabledDays, $days), SORT_REGULAR);
-        return $calendar;
+        return new self(
+            date: $this->date,
+            type: $this->type,
+            startDay: $this->startDay,
+            disabledDays: array_unique(array_merge($this->disabledDays, $days), SORT_REGULAR)
+        );
     }
 
-    public function disableDayName(DayName ...$dayNames): static
+    public function disableDayName(DayName ...$daysToDisable): static
     {
-        $from = $this->date->modify('first day of this month')->modify('monday this week');
-        $to = $this->date->modify('last day of this month')->modify('sunday this week');
-
-        $days = [];
-        foreach ($dayNames as $dayName) {
-            $current = clone $from;
-            while ($current <= $to) {
-                if (DayName::fromDate($current) === $dayName) {
-                    $days[] = $current;
+        $days = $this->days;
+        $disabled = [];
+        while ($day = array_shift($days)){
+            foreach($daysToDisable as $dayName){
+                if (DayName::fromDate($day) === $dayName){
+                    $disabled[] = $day;
                 }
-                $current = $current->modify('+1 day');
             }
         }
-        $calendar = clone $this;
-        $calendar->disabledDays = array_unique(array_merge($calendar->disabledDays, $days), SORT_REGULAR);
-        return $calendar;
+        return $this->disableDays(...$disabled);
     }
 
     public function disableWeek(int $weekNum): self
     {
-        $from = $this->date->modify('first day of this month')->modify('monday this week');
-        $to = $this->date->modify('last day of this month')->modify('sunday this week');
-
-        $current = clone $from;
-        $days = [];
-        while ($current <= $to) {
-            if ((int)$current->format('W') === $weekNum) {
-                $days[] = $current;
+        $days = $this->days;
+        $disabled = [];
+        while ($day = array_shift($days)){
+            if ((int)$day->format('W') === $weekNum) {
+                $disabled[] = $day;
             }
-            $current = $current->modify('+1 day');
         }
-        $calendar = clone $this;
-        $calendar->disabledDays = array_unique(array_merge($calendar->disabledDays, $days), SORT_REGULAR);
-        return $calendar;
+        return $this->disableDays(...$disabled);
     }
 
 
     public function nextMonth(): self
     {
-        $calendar = clone $this;
-        $calendar->date = $this->date->modify('+1 month');
-        $this->disabledDays = [];
-        return $calendar;
+        $date = $this->date->modify('+1 month');
+        return new self(
+            date: $date,
+            type: $this->type,
+            startDay: $this->startDay,
+            disabledDays: []
+        );
     }
 
     public function prevMonth(): self
     {
-        $calendar = clone $this;
-        $calendar->date = $this->date->modify('-1 month');
-        return $calendar;
-    }
-
-
-    public function setDayRenderer(DayRendererInterface $dayRenderer): self
-    {
-        $this->dayRenderer = $dayRenderer;
-        return $this;
-    }
-
-    public function setDayNameRenderer(DayNameRendererInterface $dayNameRenderer): self
-    {
-        $this->dayNameRenderer = $dayNameRenderer;
-        return $this;
-    }
-
-    public function setWeekRowRenderer(WeekRowRendererInterface $weekRowRenderer): self
-    {
-        $this->weekRowRenderer = $weekRowRenderer;
-        return $this;
-    }
-
-    public function setMonthRenderer(MonthRendererInterface $monthRenderer): self
-    {
-        $this->monthRenderer = $monthRenderer;
-        return $this;
-    }
-
-    public function setEventRenderer(EventRendererInterface $eventRenderer): self
-    {
-        $this->eventRenderer = $eventRenderer;
-        return $this;
-    }
-
-    public function setRenderer(
-        DayRendererInterface&DayNameRendererInterface&WeekRowRendererInterface&MonthRendererInterface&EventRendererInterface $renderer
-    ): self {
-        $this->setDayRenderer($renderer);
-        $this->setDayNameRenderer($renderer);
-        $this->setWeekRowRenderer($renderer);
-        $this->setMonthRenderer($renderer);
-        $this->setEventRenderer($renderer);
-        return $this;
+        $date = $this->date->modify('-1 month');
+        return new self(
+            date: $date,
+            type: $this->type,
+            startDay: $this->startDay,
+            disabledDays: []
+        );
     }
 
     /**
-     * @return \Tito10047\Calendar\Day[][]
+     * @return Day[][]
      */
     public function getDaysTable(): array
     {
-        $days = $this->type->getDays($this->date, $this->startDay);
+        $days = $this->days;
         $rows = [];
         while (count($days) > 0) {
             $row = [];
             $weekNum = (int)$days[0]->format('W');
             for ($i = 0; $i < 7 and count($days) > 0; $i++) {
                 $day = array_shift($days);
-                $row[] = new \Tito10047\Calendar\Day(
+                $row[] = new Day(
                     date: $day,
                     ghost: $day->format('m') !== $this->date->format('m'),
                     today: $day->format('Y-m-d') === date('Y-m-d'),
@@ -215,14 +137,11 @@ class Calendar
         return $rows;
     }
 
-    public function render(): string
+    public function isDayDisabled(DateTimeImmutable|Day $day): bool
     {
-        $daysTable = $this->getDaysTable();
-        return $this->monthRenderer->renderMonth($this->date, DayName::all($this->startDay), $daysTable);
-    }
-
-    public function isDayDisabled(\DateTimeImmutable $day)
-    {
+        if ($day instanceof Day) {
+            $day = $day->date;
+        }
         foreach($this->disabledDays as $disabledDay){
             if($disabledDay->format('Y-m-d') === $day->format('Y-m-d')){
                 return true;
@@ -231,5 +150,14 @@ class Calendar
         return false;
     }
 
+    public function getStartDay():DayName
+    {
+        return $this->startDay;
+    }
+
+    public function getDisabledDays(): array
+    {
+        return $this->disabledDays;
+    }
 
 }

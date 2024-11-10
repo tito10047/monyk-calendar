@@ -9,9 +9,9 @@
 namespace Tito10047\Calendar\Enum;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tito10047\Calendar\Config;
+use Tito10047\Calendar\Interface\DaysGeneratorInterface;
 
-enum CalendarType
+enum CalendarType implements DaysGeneratorInterface
 {
     case Monthly;
     case Weekly;
@@ -38,33 +38,47 @@ enum CalendarType
 
     public function getDays(\DateTimeImmutable $day, DayName $firstDay):array
     {
-        $firstDayDate = $day->modify(match ($this) {
-            self::Monthly => 'first day of this month',
-            self::Weekly => 'monday this week',
-            self::WorkWeek => 'monday this week',
-        });
-        $lastDayDate = $day->modify(match ($this) {
-            self::Monthly => 'last day of this month',
-            self::Weekly => 'sunday this week',
-            self::WorkWeek => 'friday this week',
-        });
-        $firstDayDate = $firstDayDate->modify("monday this week");
-        $lastDayDate = $lastDayDate->modify("sunday this week");
-        if ($this!==CalendarType::Monthly){
-            if ($firstDay==DayName::Sunday) {
-                $firstDayDate = $firstDayDate->modify("-7 day");
-                $lastDayDate = $lastDayDate->modify("-7 day");
-            }
-            $dayNumber = $firstDay->getDayNumber()-1;
-            $firstDayDate = $firstDayDate->modify("+{$dayNumber} days");
-            $lastDayDate = $lastDayDate->modify("+{$dayNumber} days");
-        }
         $days = [];
-        $currentDay = $firstDayDate;
+        $currentDay = $this->getStartDate($day, $firstDay);
+        $lastDayDate = $this->getEndDate($day, $firstDay);
         while ($currentDay<=$lastDayDate){
             $days[] = $currentDay;
             $currentDay = $currentDay->modify('+1 day');
         }
         return $days;
+    }
+    public function getStartDate(\DateTimeImmutable $day, DayName $firstDay):\DateTimeImmutable{
+
+        $firstDayDate = $day->modify(match ($this) {
+            self::Monthly => 'first day of this month',
+            self::Weekly => 'monday this week',
+            self::WorkWeek => 'monday this week',
+        });
+        $firstDayDate = $firstDayDate->modify("monday this week");
+        if ($this!==CalendarType::Monthly){
+            if ($firstDay==DayName::Sunday) {
+                $firstDayDate = $firstDayDate->modify("-7 day");
+            }
+            $dayNumber = $firstDay->getDayNumber()-1;
+            $firstDayDate = $firstDayDate->modify("+{$dayNumber} days");
+        }
+        return $firstDayDate;
+    }
+    public function getEndDate(\DateTimeImmutable $day, DayName $firstDay):\DateTimeImmutable{
+
+        $lastDayDate = $day->modify(match ($this) {
+            self::Monthly => 'last day of this month',
+            self::Weekly => 'sunday this week',
+            self::WorkWeek => 'friday this week',
+        });
+        $lastDayDate = $lastDayDate->modify("sunday this week");
+        if ($this!==CalendarType::Monthly){
+            if ($firstDay==DayName::Sunday) {
+                $lastDayDate = $lastDayDate->modify("-7 day");
+            }
+            $dayNumber = $firstDay->getDayNumber()-1;
+            $lastDayDate = $lastDayDate->modify("+{$dayNumber} days");
+        }
+        return $lastDayDate;
     }
 }

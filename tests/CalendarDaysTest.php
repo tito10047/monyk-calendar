@@ -27,7 +27,7 @@ class CalendarDaysTest extends TestCase
             ->disableDayName(DayName::Saturday,DayName::Sunday);
         $dayTable = $calendar->getDaysTable();
         $this->assertCount(1, $dayTable);
-        $days = $dayTable[0];
+        $days = array_shift($dayTable);
         $days = array_filter($days, fn(Day $day) => $day->enabled);
         $dates = [
             '2024-11-04',
@@ -51,7 +51,7 @@ class CalendarDaysTest extends TestCase
         $calendar = $calendar->disableDayName(DayName::Saturday,DayName::Sunday);
         $daysTable = $calendar->getDaysTable();
         $this->assertCount(1, $daysTable);
-        $days = $daysTable[0];
+        $days = array_shift($daysTable);
         $dates = [
             '2024-10-28',
             '2024-10-29',
