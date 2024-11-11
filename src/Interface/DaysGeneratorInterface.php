@@ -13,7 +13,4 @@ use Tito10047\Calendar\Enum\DayName;
 interface DaysGeneratorInterface
 {
     public function getDays(\DateTimeImmutable $day, DayName $firstDay):array;
-
-    public function getStartDate(\DateTimeImmutable $day, DayName $firstDay):\DateTimeImmutable;
-    public function getEndDate(\DateTimeImmutable $day, DayName $firstDay):\DateTimeImmutable;
 }

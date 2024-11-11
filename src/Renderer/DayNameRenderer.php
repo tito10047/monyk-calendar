@@ -18,7 +18,7 @@ class DayNameRenderer implements \Tito10047\Calendar\Interface\DayNameRendererIn
     public function __construct(
         private TranslatorInterface $translator,
         private string $translationDomain,
-        private array $dayNameClasses = []
+        private array $dayNameClasses = ["day-name"]
     )
     {
     }

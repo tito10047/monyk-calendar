@@ -22,12 +22,15 @@ final readonly class Calendar implements CalendarInterface
 
     public function __construct(
         private DateTimeImmutable $date,
-        private DaysGeneratorInterface $type = CalendarType::Monthly,
+        private DaysGeneratorInterface $daysGenerator = CalendarType::Monthly,
         private DayName $startDay = DayName::Monday,
         /** @var DateTimeImmutable[] $disabledDays */
         private array $disabledDays = []
     ) {
-        $this->days = $this->type->getDays($this->date, $this->startDay);
+        $this->days = $this->daysGenerator->getDays($this->date, $this->startDay);
+        if (count($this->days) === 0) {
+            throw new \InvalidArgumentException('Day generator returned no days');
+        }
     }
 
     public function getDate(): DateTimeImmutable
@@ -39,10 +42,10 @@ final readonly class Calendar implements CalendarInterface
     public function disableDaysRange(DateTimeImmutable $from = null, DateTimeImmutable $to = null): self
     {
         if (!$from) {
-            $from = $this->type->getStartDate($this->date, $this->startDay);
+            $from = $this->days[0];
         }
         if (!$to) {
-            $to = $this->type->getEndDate($this->date, $this->startDay);
+            $to = end($this->days);
         }
         $current = clone $from;
         $days = [];
@@ -56,19 +59,22 @@ final readonly class Calendar implements CalendarInterface
 
     public function disableDays(DateTimeImmutable ...$days): self
     {
+        $disabledDays = $this->disabledDays;
+        foreach($days as $day){
+            $disabledDays[$day->format('Y-m-d')] = $day;
+        }
         return new self(
             date: $this->date,
-            type: $this->type,
+            daysGenerator: $this->daysGenerator,
             startDay: $this->startDay,
-            disabledDays: array_unique(array_merge($this->disabledDays, $days), SORT_REGULAR)
+            disabledDays: $disabledDays
         );
     }
 
     public function disableDaysByName(DayName ...$daysToDisable): static
     {
-        $days = $this->days;
         $disabled = [];
-        while ($day = array_shift($days)){
+        foreach($this->days as $day){
             foreach($daysToDisable as $dayName){
                 if (DayName::fromDate($day) === $dayName){
                     $disabled[] = $day;
@@ -80,9 +86,8 @@ final readonly class Calendar implements CalendarInterface
 
     public function disableWeek(int $weekNum): self
     {
-        $days = $this->days;
         $disabled = [];
-        while ($day = array_shift($days)){
+        foreach($this->days as $day){
             if ((int)$day->format('W') === $weekNum) {
                 $disabled[] = $day;
             }
@@ -93,10 +98,10 @@ final readonly class Calendar implements CalendarInterface
 
     public function nextMonth(): self
     {
-        $date = $this->date->modify('+1 month');
+        $date = $this->date->modify('+1 month')->modify("first day of this month");
         return new self(
             date: $date,
-            type: $this->type,
+            daysGenerator: $this->daysGenerator,
             startDay: $this->startDay,
             disabledDays: []
         );
@@ -104,10 +109,10 @@ final readonly class Calendar implements CalendarInterface
 
     public function prevMonth(): self
     {
-        $date = $this->date->modify('-1 month');
+        $date = $this->date->modify('-1 month')->modify("first day of this month");
         return new self(
             date: $date,
-            type: $this->type,
+            daysGenerator: $this->daysGenerator,
             startDay: $this->startDay,
             disabledDays: []
         );
@@ -118,18 +123,21 @@ final readonly class Calendar implements CalendarInterface
      */
     public function getDaysTable(): array
     {
+        $thisMonthNum = $this->date->format('m');
         $days = $this->days;
+        $today = date('Y-m-d');
         $rows = [];
         while (count($days) > 0) {
             $row = [];
-            $weekNum = (int)$days[0]->format('W');
-            for ($i = 0; $i < 7 and count($days) > 0; $i++) {
+            $firstDay = $days[0];
+            $weekNum = (int)$firstDay->format('W');
+            for ($i = (int)$firstDay->format("N"); $i <=7 and count($days) > 0; $i++) {
                 $day = array_shift($days);
-                $row[] = new Day(
+                $row[$i] = new Day(
                     date: $day,
-                    ghost: $day->format('m') !== $this->date->format('m'),
-                    today: $day->format('Y-m-d') === date('Y-m-d'),
-                    enabled: !in_array($day, $this->disabledDays)
+                    ghost: $day->format('m') !== $thisMonthNum,
+                    today: $day->format('Y-m-d') === $today,
+                    enabled: !array_key_exists($day->format('Y-m-d'), $this->disabledDays)
                 );
             }
             $rows[$weekNum] = $row;
@@ -142,12 +150,7 @@ final readonly class Calendar implements CalendarInterface
         if ($day instanceof Day) {
             $day = $day->date;
         }
-        foreach($this->disabledDays as $disabledDay){
-            if($disabledDay->format('Y-m-d') === $day->format('Y-m-d')){
-                return true;
-            }
-        }
-        return false;
+        return array_key_exists($day->format('Y-m-d'), $this->disabledDays);
     }
 
     public function getStartDay():DayName
@@ -155,9 +158,10 @@ final readonly class Calendar implements CalendarInterface
         return $this->startDay;
     }
 
+
     public function getDisabledDays(): array
     {
-        return $this->disabledDays;
+        return array_values($this->disabledDays);
     }
 
 }

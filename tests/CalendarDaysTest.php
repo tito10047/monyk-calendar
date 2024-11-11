@@ -30,7 +30,7 @@ class CalendarDaysTest extends TestCase
         $days = array_shift($dayTable);
         $days = array_filter($days, fn(Day $day) => $day->enabled);
         $dates = [
-            '2024-11-04',
+            1=>'2024-11-04',
             '2024-11-05',
             '2024-11-06',
             '2024-11-07',
@@ -53,7 +53,7 @@ class CalendarDaysTest extends TestCase
         $this->assertCount(1, $daysTable);
         $days = array_shift($daysTable);
         $dates = [
-            '2024-10-28',
+            1=>'2024-10-28',
             '2024-10-29',
             '2024-10-30',
             '2024-10-31',

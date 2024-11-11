@@ -18,18 +18,15 @@ enum DayName:int
     case Saturday=6;
     case Sunday=7;
 
-    public static function fromDate(\DateTimeImmutable $date):self
+    public static function fromDate(\DateTimeInterface $date):self
     {
-        return match ((int)$date->format('N')) {
-            1 => self::Monday,
-            2 => self::Tuesday,
-            3 => self::Wednesday,
-            4 => self::Thursday,
-            5 => self::Friday,
-            6 => self::Saturday,
-            7 => self::Sunday,
-            default => throw new \LogicException('Unexpected match value'),
-        };
+        $numDay = (int)$date->format('N');
+        foreach (DayName::cases() as $day){
+            if($day->value == $numDay){
+                return $day;
+            }
+        }
+        throw new \LogicException('Invalid day number');
     }
 
     public function getShortName():string
