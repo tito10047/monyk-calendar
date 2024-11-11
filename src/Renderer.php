@@ -11,6 +11,7 @@ namespace Tito10047\Calendar;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tito10047\Calendar\Enum\CalendarType;
 use Tito10047\Calendar\Enum\DayName;
+use Tito10047\Calendar\Interface\CalendarInterface;
 use Tito10047\Calendar\Interface\DayNameRendererInterface;
 use Tito10047\Calendar\Interface\DayRendererInterface;
 use Tito10047\Calendar\Interface\EventRendererInterface;
@@ -58,7 +59,7 @@ readonly class Renderer
     }
 
 
-    public function render(Calendar $calendar): string
+    public function render(CalendarInterface $calendar): string
     {
         $daysTable = $calendar->getDaysTable();
         return $this->monthRenderer->renderMonth(

@@ -1,7 +1,7 @@
-# Calendar Package
 
-This package provides a calendar component for plain php. 
-It includes features such as event management, date navigation, and customizable views.
+# Plain PHP Calendar Package
+
+This package provides a simple calendar component that can be used in PHP applications.
 
 ## Installation
 
@@ -9,7 +9,7 @@ To install the package, use the following commands:
 
 ### Using Composer
 ```sh
-composer require your-vendor/calendar
+composer require tito10047/php-callendar
 ```
 
 ## Usage
@@ -21,6 +21,8 @@ To use the calendar component in your PHP application, include the autoload file
 require 'vendor/autoload.php';
 
 use Tito10047\Calendar\Calendar;
+use Tito10047\Calendar\Enum\CalendarType;
+use Tito10047\Calendar\Enum\DayName;
 
 $calendar = new Calendar(
     date:new DateTime('2021-01-01'),
@@ -32,6 +34,7 @@ $renderer = Renderer::factory(CalendarType::Monthly,'calendar');
 
 $calendar->disableDays(new DateTime('2021-01-01'));
 $calendar->disableDaysByName(DayName::Sunday);
+$nextMonthCalendar->disableDaysByName(DayName::Sunday);
 
 echo $renderer->render($calendar);
 echo $renderer->render($nextMonthCalendar);
