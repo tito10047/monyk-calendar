@@ -14,18 +14,18 @@ use Tito10047\Calendar\Enum\DayName;
 use Tito10047\Calendar\Interface\CalendarInterface;
 use Tito10047\Calendar\Interface\DaysGeneratorInterface;
 
-final readonly class Calendar implements CalendarInterface
+final class Calendar implements CalendarInterface
 {
     /** @var DateTimeImmutable[] */
-    private array $days;
+    private readonly array $days;
 
 
     public function __construct(
-        private DateTimeImmutable $date,
-        private DaysGeneratorInterface $daysGenerator = CalendarType::Monthly,
-        private DayName $startDay = DayName::Monday,
+        private readonly DateTimeImmutable $date,
+        private readonly DaysGeneratorInterface $daysGenerator = CalendarType::Monthly,
+        private readonly DayName $startDay = DayName::Monday,
         /** @var DateTimeImmutable[] $disabledDays */
-        private array $disabledDays = []
+        private readonly array $disabledDays = []
     ) {
         $this->days = $this->daysGenerator->getDays($this->date, $this->startDay);
         if (count($this->days) === 0) {

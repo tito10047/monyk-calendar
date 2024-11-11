@@ -8,14 +8,14 @@
 
 namespace Tito10047\Calendar;
 
-readonly class Day
+final class Day
 {
 
     public function __construct(
-        public \DateTimeImmutable $date,
-        public bool $ghost,
-        public bool $today,
-        public bool $enabled,
+        public readonly \DateTimeImmutable $date,
+        public readonly bool $ghost,
+        public readonly bool $today,
+        public readonly bool $enabled,
     )
     {
     }

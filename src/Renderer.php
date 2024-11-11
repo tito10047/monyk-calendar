@@ -23,11 +23,11 @@ use Tito10047\Calendar\Renderer\EventRenderer;
 use Tito10047\Calendar\Renderer\MonthRenderer;
 use Tito10047\Calendar\Renderer\WeekRowRenderer;
 
-readonly class Renderer
+final class Renderer
 {
 
     public function __construct(
-        private MonthRendererInterface $monthRenderer,
+        private readonly MonthRendererInterface $monthRenderer,
     ) {
     }
 
