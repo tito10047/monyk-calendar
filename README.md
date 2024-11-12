@@ -64,7 +64,7 @@ $table = $calendar->getDaysTable();
             {% if not day.enabled %}{% set classes = classes ~ ' disabled' %}{% endif %}
             <td>
                 {% if not day.ghost %}
-                    {{day}}
+                    {{day.date|format('d')}}
                 {%endif%}                    
             </td>
         {%endfor%}
