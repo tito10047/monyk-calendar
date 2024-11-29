@@ -164,4 +164,20 @@ final class Calendar implements CalendarInterface
         return array_values($this->disabledDays);
     }
 
+    public function isFirstDay(\DateTimeInterface|Day $day): bool
+    {
+        if ($day instanceof Day) {
+            $day = $day->date;
+        }
+        return $this->date->modify("first day of this month")->format('Y-m-d') === $day->format('Y-m-d');
+    }
+
+    public function isLastDay(\DateTimeInterface|Day $day): bool
+    {
+        if ($day instanceof Day) {
+            $day = $day->date;
+        }
+        return $this->date->modify("last day of this month")->format('Y-m-d') === $day->format('Y-m-d');
+    }
+
 }

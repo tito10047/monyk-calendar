@@ -86,4 +86,8 @@ interface CalendarInterface
      * @return array<string, DateTimeImmutable>
      */
     public function getDisabledDays(): array;
+
+    public function isFirstDay(\DateTimeInterface|Day $day): bool;
+
+    public function isLastDay(\DateTimeInterface|Day $day): bool;
 }
