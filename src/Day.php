@@ -16,7 +16,19 @@ final class Day
         public readonly bool $ghost,
         public readonly bool $today,
         public readonly bool $enabled,
+        public readonly ?array $data = null
     )
     {
+    }
+
+    public function withData(array $data):self
+    {
+        return new self(
+            $this->date,
+            $this->ghost,
+            $this->today,
+            $this->enabled,
+            $data
+        );
     }
 }

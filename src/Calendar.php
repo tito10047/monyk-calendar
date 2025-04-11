@@ -12,12 +12,14 @@ use DateTimeImmutable;
 use Tito10047\Calendar\Enum\CalendarType;
 use Tito10047\Calendar\Enum\DayName;
 use Tito10047\Calendar\Interface\CalendarInterface;
+use Tito10047\Calendar\Interface\DayDataLoaderInterface;
 use Tito10047\Calendar\Interface\DaysGeneratorInterface;
 
 final class Calendar implements CalendarInterface
 {
     /** @var DateTimeImmutable[] */
-    private readonly array $days;
+    private array $days;
+    private ?DayDataLoaderInterface $dataLoader = null;
 
 
     public function __construct(
@@ -95,6 +97,13 @@ final class Calendar implements CalendarInterface
         return $this->disableDays(...$disabled);
     }
 
+    public function setDataLoader(DayDataLoaderInterface $dataLoader): self
+    {
+        $clone = clone $this;
+        $clone->dataLoader = $dataLoader;
+        return $clone;
+    }
+
 
     public function nextMonth(): self
     {
@@ -127,18 +136,27 @@ final class Calendar implements CalendarInterface
         $days = $this->days;
         $today = date('Y-m-d');
         $rows = [];
+        $firstDay = $days[0];
+        $lastDay = end($days);
+        $this->dataLoader?->load($firstDay,$lastDay);
         while (count($days) > 0) {
             $row = [];
             $firstDay = $days[0];
             $weekNum = (int)$firstDay->format('W');
             for ($i = (int)$firstDay->format("N"); $i <=7 and count($days) > 0; $i++) {
                 $day = array_shift($days);
-                $row[$i] = new Day(
+                $dayElm = new Day(
                     date: $day,
                     ghost: $day->format('m') !== $thisMonthNum,
                     today: $day->format('Y-m-d') === $today,
-                    enabled: !array_key_exists($day->format('Y-m-d'), $this->disabledDays)
+                    enabled: !array_key_exists($day->format('Y-m-d'), $this->disabledDays),
                 );
+                if ($this->dataLoader){
+                    $dayElm = $dayElm->withData(
+                        data: $this->dataLoader?->getData($day)
+                    );
+                }
+                $row[$i] = $dayElm;
             }
             $rows[$weekNum] = $row;
         }

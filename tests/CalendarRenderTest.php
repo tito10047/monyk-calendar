@@ -14,14 +14,17 @@ class CalendarRenderTest extends TestCase
 {
     public function testRenderDays():void
     {
+        $date = new DateTimeImmutable();
+        $date = $date->setDate($date->format('Y'), $date->format('m'), 5);
         $calendar = new Calendar(
-            new DateTimeImmutable('2024-11-05'),
+            $date,
             CalendarType::Monthly,
             DayName::Monday,
         );
         $renderer = Renderer::factory(CalendarType::Monthly,'calendar');
         $html = $renderer->render($calendar);
         $this->assertNotEmpty($html);
+        echo($html);
         $this->assertSame(6,substr_count($html, '<tr>'));
         $this->assertSame(35,substr_count($html, '<td'));
         $this->assertSame(1,substr_count($html, 'today'));
