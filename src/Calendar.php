@@ -69,7 +69,8 @@ final class Calendar implements CalendarInterface
             date: $this->date,
             daysGenerator: $this->daysGenerator,
             startDay: $this->startDay,
-            disabledDays: $disabledDays
+            disabledDays: $disabledDays,
+            dataLoader: $this->dataLoader
         );
     }
 
@@ -116,7 +117,8 @@ final class Calendar implements CalendarInterface
             date: $date,
             daysGenerator: $this->daysGenerator,
             startDay: $this->startDay,
-            disabledDays: []
+            disabledDays: [],
+            dataLoader: $this->dataLoader
         );
     }
 
@@ -127,7 +129,8 @@ final class Calendar implements CalendarInterface
             date: $date,
             daysGenerator: $this->daysGenerator,
             startDay: $this->startDay,
-            disabledDays: []
+            disabledDays: [],
+            dataLoader: $this->dataLoader
         );
     }
 
