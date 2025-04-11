@@ -19,7 +19,6 @@ final class Calendar implements CalendarInterface
 {
     /** @var DateTimeImmutable[] */
     private array $days;
-    private ?DayDataLoaderInterface $dataLoader = null;
 
 
     public function __construct(
@@ -27,7 +26,8 @@ final class Calendar implements CalendarInterface
         private readonly DaysGeneratorInterface $daysGenerator = CalendarType::Monthly,
         private readonly DayName $startDay = DayName::Monday,
         /** @var DateTimeImmutable[] $disabledDays */
-        private readonly array $disabledDays = []
+        private readonly array $disabledDays = [],
+        private ?DayDataLoaderInterface $dataLoader = null
     ) {
         $this->days = $this->daysGenerator->getDays($this->date, $this->startDay);
         if (count($this->days) === 0) {
@@ -99,9 +99,13 @@ final class Calendar implements CalendarInterface
 
     public function setDataLoader(DayDataLoaderInterface $dataLoader): self
     {
-        $clone = clone $this;
-        $clone->dataLoader = $dataLoader;
-        return $clone;
+        return new self(
+            date: $this->date,
+            daysGenerator: $this->daysGenerator,
+            startDay: $this->startDay,
+            disabledDays: $this->disabledDays,
+            dataLoader: $dataLoader
+        );
     }
 
 
