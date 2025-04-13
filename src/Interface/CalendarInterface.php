@@ -23,8 +23,8 @@ interface CalendarInterface
      * @return self
      */
     public function disableDaysRange(
-        DateTimeImmutable $from = null,
-        DateTimeImmutable $to = null
+        ?DateTimeImmutable $from = null,
+        ?DateTimeImmutable $to = null
     ): self;
 
     /**
