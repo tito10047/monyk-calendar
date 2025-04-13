@@ -41,7 +41,7 @@ final class Calendar implements CalendarInterface
     }
 
 
-    public function disableDaysRange(DateTimeImmutable $from = null, DateTimeImmutable $to = null): self
+    public function disableDaysRange(?DateTimeImmutable $from = null, ?DateTimeImmutable $to = null): self
     {
         if (!$from) {
             $from = $this->days[0];
