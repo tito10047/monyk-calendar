@@ -49,6 +49,8 @@ final class Calendar implements CalendarInterface
         if (!$to) {
             $to = end($this->days);
         }
+		$from = $from->setTime(0, 0, 0);
+		$to = $to->setTime(0, 0, 0);
         $current = clone $from;
         $days = [];
         while ($current <= $to) {
